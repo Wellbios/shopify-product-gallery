@@ -1,0 +1,357 @@
+<!-- Stylessheet css vom asset folder laden-->
+{{ 'gallery.css' | asset_url | stylesheet_tag }} 
+
+<!-- Meine Html Struktur für die Galerie -->
+<main class="main-product-gallery" role="main">
+  <section class="product-gallery-section">
+   <div class="padding-vertical__global">
+    <div class="product-gallery">
+
+      <div class="product-gallery__thumbnails">
+        {% for media in product.media %}
+          <img
+            src="{{ media | image_url: width: 150 }}"
+            alt="{{ media.alt | escape }}"
+            width="{{ media.preview_image.width }}"
+            height="{{ media.preview_image.height }}"
+            class="thumbnail-img {% if forloop.first %}active{% endif %}"
+            data-full="{{ media | image_url: 'master' }}"
+          >
+        {% endfor %}
+      </div>
+
+      <div class="product-gallery_main-image">
+        <div class="product-gallery_slider-container">
+          <div class="main-image-wrapper">
+            {% if product.featured_media %}
+              <img
+                src="{{ product.featured_media | image_url: 'master' }}"
+                alt="{{ product.featured_media.alt | escape }}"
+                width="{{ product.featured_media.preview_image.width }}"
+                height="{{ product.featured_media.preview_image.height }}"
+                class="main-image"
+                id="mainImage"
+              >
+            {% else %}
+              {{ 'product-1' | placeholder_svg_tag: 'main-image placeholder-svg' }}
+            {% endif %}
+          </div>
+
+          <div class="arrow-navigation">
+            <svg
+              class="product-gallery_slider-arrows"
+              onclick="previousImage()"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+            </svg>
+
+            <svg
+              class="product-gallery_slider-arrows"
+              onclick="nextImage()"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-gallery_product-card-wrapper">
+        <div class="product-gallery_product-card">
+
+          <div class="product-gallery_product-card-title-wrapper">
+            <h1 class="product-card__header">{{ product.title | escape }}</h1>
+            <span class="product-card__detail">{{ product.vendor | escape }}</span>
+          </div>
+
+          {%- comment -%} This block handles the product form, variants, and pricing logic {%- endcomment -%}
+          {%- form 'product', product -%}
+            <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+
+            <div class="product-gallery_product-card-price-wrapper">
+              {% if product.compare_at_price > product.price %}
+                <span class="price-wrapper_old-price">{{ product.compare_at_price | money }}</span>
+              {% endif %}
+              <div class="price-new-price">
+                <span class="product-card__new-price-header is-blue">{{ product.price | money }}
+                  <span class="product-card__new-price-header is-small">inkl. MwSt.</span></span>
+              </div>
+            </div>
+
+            <div class="price-card__availability-status">
+              <div class="price-card__availability-status-dot"></div>
+              {% if product.available %}
+                <span class="price-card__availability-text">Auf Lager, in 2 bis drei Tagen bei dir</span>
+              {% else %}
+                <span class="price-card__availability-text">Ausverkauft</span>
+              {% endif %}
+            </div>
+
+            <button
+              class="product-card_cta-btn"
+              type="submit"
+              {% unless product.available %}disabled="disabled"{% endunless %}
+            >
+              {% if product.available %}
+                In den Einkaufswagen
+              {% else %}
+                Ausverkauft
+              {% endif %}
+            </button>
+          {%- endform -%}
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="product-gallery_feature-wrapper">
+      <div class="product-gallery_feature-item">
+        <svg
+          width="57"
+          height="57"
+          viewBox="0 0 57 57"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M40.9688 3.5625L43.8063 8.90625L49.875 9.64369L45.4219 13.6568L46.3125 19.5938L40.9688 16.2539L35.625 19.5938L36.5156 13.6568L32.0625 9.64369L38.2969 8.90625L40.9688 3.5625Z" fill="black" />
+          <path d="M40.4663 23.5997L37.0143 22.7126C36.3955 25.0964 35.0841 27.2432 33.2457 28.882C31.4073 30.5207 29.1245 31.5779 26.6856 31.9198C24.2467 32.2617 21.7612 31.8731 19.5431 30.8031C17.3249 29.7331 15.4737 28.0297 14.2232 25.908C12.9727 23.7863 12.3792 21.3417 12.5175 18.8828C12.6558 16.424 13.5197 14.0612 15.0002 12.0932C16.4807 10.1251 18.5113 8.64001 20.8354 7.82547C23.1596 7.01093 25.673 6.90351 28.0581 7.51678L28.947 4.06649C25.47 3.16207 21.7898 3.45318 18.4982 4.89301C15.2066 6.33285 12.4948 8.83776 10.7989 12.005C9.10288 15.1723 8.52127 18.8178 9.14752 22.3555C9.77377 25.8933 11.5715 29.1176 14.2517 31.5102V53.4374L24.9392 46.3124L35.6267 53.4374V31.5423C37.9927 29.4339 39.6774 26.669 40.4663 23.5997ZM32.0642 46.7809L24.9392 42.0303L17.8142 46.7809V33.9327C20.0246 35.0438 22.464 35.6233 24.9379 35.6252C27.4119 35.627 29.8521 35.0511 32.0642 33.9434V46.7809Z" fill="black" />
+        </svg>
+        <div class="product-gallery_feature-text-wrapper">
+          <span class="feature-text__title">100% Qualität</span>
+          <span class="feature-text__detail">Dank weichem Silikon</span>
+        </div>
+      </div>
+      <div class="product-gallery_feature-item">
+        <svg
+          width="57"
+          height="57"
+          viewBox="0 0 57 57"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M40.9688 3.5625L43.8063 8.90625L49.875 9.64369L45.4219 13.6568L46.3125 19.5938L40.9688 16.2539L35.625 19.5938L36.5156 13.6568L32.0625 9.64369L38.2969 8.90625L40.9688 3.5625Z" fill="black" />
+          <path d="M40.4663 23.5997L37.0143 22.7126C36.3955 25.0964 35.0841 27.2432 33.2457 28.882C31.4073 30.5207 29.1245 31.5779 26.6856 31.9198C24.2467 32.2617 21.7612 31.8731 19.5431 30.8031C17.3249 29.7331 15.4737 28.0297 14.2232 25.908C12.9727 23.7863 12.3792 21.3417 12.5175 18.8828C12.6558 16.424 13.5197 14.0612 15.0002 12.0932C16.4807 10.1251 18.5113 8.64001 20.8354 7.82547C23.1596 7.01093 25.673 6.90351 28.0581 7.51678L28.947 4.06649C25.47 3.16207 21.7898 3.45318 18.4982 4.89301C15.2066 6.33285 12.4948 8.83776 10.7989 12.005C9.10288 15.1723 8.52127 18.8178 9.14752 22.3555C9.77377 25.8933 11.5715 29.1176 14.2517 31.5102V53.4374L24.9392 46.3124L35.6267 53.4374V31.5423C37.9927 29.4339 39.6774 26.669 40.4663 23.5997ZM32.0642 46.7809L24.9392 42.0303L17.8142 46.7809V33.9327C20.0246 35.0438 22.464 35.6233 24.9379 35.6252C27.4119 35.627 29.8521 35.0511 32.0642 33.9434V46.7809Z" fill="black" />
+        </svg>
+        <div class="product-gallery_feature-text-wrapper">
+          <span class="feature-text__title">100% Qualität</span>
+          <span class="feature-text__detail">Dank weichem Silikon</span>
+        </div>
+      </div>
+      <div class="product-gallery_feature-item">
+        <svg
+          width="57"
+          height="57"
+          viewBox="0 0 57 57"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M40.9688 3.5625L43.8063 8.90625L49.875 9.64369L45.4219 13.6568L46.3125 19.5938L40.9688 16.2539L35.625 19.5938L36.5156 13.6568L32.0625 9.64369L38.2969 8.90625L40.9688 3.5625Z" fill="black" />
+          <path d="M40.4663 23.5997L37.0143 22.7126C36.3955 25.0964 35.0841 27.2432 33.2457 28.882C31.4073 30.5207 29.1245 31.5779 26.6856 31.9198C24.2467 32.2617 21.7612 31.8731 19.5431 30.8031C17.3249 29.7331 15.4737 28.0297 14.2232 25.908C12.9727 23.7863 12.3792 21.3417 12.5175 18.8828C12.6558 16.424 13.5197 14.0612 15.0002 12.0932C16.4807 10.1251 18.5113 8.64001 20.8354 7.82547C23.1596 7.01093 25.673 6.90351 28.0581 7.51678L28.947 4.06649C25.47 3.16207 21.7898 3.45318 18.4982 4.89301C15.2066 6.33285 12.4948 8.83776 10.7989 12.005C9.10288 15.1723 8.52127 18.8178 9.14752 22.3555C9.77377 25.8933 11.5715 29.1176 14.2517 31.5102V53.4374L24.9392 46.3124L35.6267 53.4374V31.5423C37.9927 29.4339 39.6774 26.669 40.4663 23.5997ZM32.0642 46.7809L24.9392 42.0303L17.8142 46.7809V33.9327C20.0246 35.0438 22.464 35.6233 24.9379 35.6252C27.4119 35.627 29.8521 35.0511 32.0642 33.9434V46.7809Z" fill="black" />
+        </svg>
+        <div class="product-gallery_feature-text-wrapper">
+          <span class="feature-text__title">100% Qualität</span>
+          <span class="feature-text__detail">Dank weichem Silikon</span>
+        </div>
+      </div>
+    </div>
+    <div class="product_slider-mobile">
+      <div class="container slider-column">
+        <div class="swiper swiper-slider">
+          <div class="swiper-wrapper">
+            {% for media in product.media %}
+              <img
+                class="swiper-slide"
+                src="{{ media | image_url: 'master' }}"
+                alt="{{ media.alt | escape }}"
+                width="{{ media.preview_image.width }}"
+                height="{{ media.preview_image.height }}"
+              >
+            {% endfor %}
+          </div>
+          <span class="swiper-pagination"></span>
+          <span class="swiper-button-prev"></span>
+          <span class="swiper-button-next"></span>
+        </div>
+        <div class="product-gallery_product-card-wrapper is-mobile">
+          <div class="product-gallery_product-card">
+
+            <div class="product-gallery_product-card-title-wrapper">
+              <h1 class="product-card__header">{{ product.title | escape }}</h1>
+              <span class="product-card__detail">{{ product.vendor | escape }}</span>
+            </div>
+            
+            {%- form 'product', product -%}
+              <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+              <div class="product-gallery_product-card-price-wrapper">
+                {% if product.compare_at_price > product.price %}
+                  <span class="price-wrapper_old-price">{{ product.compare_at_price | money }}</span>
+                {% endif %}
+                <div class="price-new-price">
+                  <span class="product-card__new-price-header is-blue">{{ product.price | money }}
+                    <span class="product-card__new-price-header is-small">inkl. MwSt.</span></span>
+                </div>
+              </div>
+
+              <div class="price-card__availability-status">
+                <div class="price-card__availability-status-dot"></div>
+                {% if product.available %}
+                  <span class="price-card__availability-text">Auf Lager, in 2 bis drei Tagen bei dir</span>
+                {% else %}
+                  <span class="price-card__availability-text">Ausverkauft</span>
+                {% endif %}
+              </div>
+
+              <button
+                class="product-card_cta-btn"
+                type="submit"
+                {% unless product.available %}disabled="disabled"{% endunless %}
+              >
+                {% if product.available %}
+                  In den Einkaufswagen
+                {% else %}
+                  Ausverkauft
+                {% endif %}
+              </button>
+            {%- endform -%}
+          </div>
+        </div>
+        <div class="product-gallery_feature-wrapper is-mobile">
+          <div class="product-gallery_feature-item">
+            <svg
+              width="57"
+              height="57"
+              viewBox="0 0 57 57"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M40.9688 3.5625L43.8063 8.90625L49.875 9.64369L45.4219 13.6568L46.3125 19.5938L40.9688 16.2539L35.625 19.5938L36.5156 13.6568L32.0625 9.64369L38.2969 8.90625L40.9688 3.5625Z" fill="black" />
+              <path d="M40.4663 23.5997L37.0143 22.7126C36.3955 25.0964 35.0841 27.2432 33.2457 28.882C31.4073 30.5207 29.1245 31.5779 26.6856 31.9198C24.2467 32.2617 21.7612 31.8731 19.5431 30.8031C17.3249 29.7331 15.4737 28.0297 14.2232 25.908C12.9727 23.7863 12.3792 21.3417 12.5175 18.8828C12.6558 16.424 13.5197 14.0612 15.0002 12.0932C16.4807 10.1251 18.5113 8.64001 20.8354 7.82547C23.1596 7.01093 25.673 6.90351 28.0581 7.51678L28.947 4.06649C25.47 3.16207 21.7898 3.45318 18.4982 4.89301C15.2066 6.33285 12.4948 8.83776 10.7989 12.005C9.10288 15.1723 8.52127 18.8178 9.14752 22.3555C9.77377 25.8933 11.5715 29.1176 14.2517 31.5102V53.4374L24.9392 46.3124L35.6267 53.4374V31.5423C37.9927 29.4339 39.6774 26.669 40.4663 23.5997ZM32.0642 46.7809L24.9392 42.0303L17.8142 46.7809V33.9327C20.0246 35.0438 22.464 35.6233 24.9379 35.6252C27.4119 35.627 29.8521 35.0511 32.0642 33.9434V46.7809Z" fill="black" />
+            </svg>
+            <div class="product-gallery_feature-text-wrapper">
+              <span class="feature-text__title">100% Qualität</span>
+              <span class="feature-text__detail">Dank weichem Silikon</span>
+            </div>
+          </div>
+          <div class="product-gallery_feature-item">
+            <svg
+              width="57"
+              height="57"
+              viewBox="0 0 57 57"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M40.9688 3.5625L43.8063 8.90625L49.875 9.64369L45.4219 13.6568L46.3125 19.5938L40.9688 16.2539L35.625 19.5938L36.5156 13.6568L32.0625 9.64369L38.2969 8.90625L40.9688 3.5625Z" fill="black" />
+              <path d="M40.4663 23.5997L37.0143 22.7126C36.3955 25.0964 35.0841 27.2432 33.2457 28.882C31.4073 30.5207 29.1245 31.5779 26.6856 31.9198C24.2467 32.2617 21.7612 31.8731 19.5431 30.8031C17.3249 29.7331 15.4737 28.0297 14.2232 25.908C12.9727 23.7863 12.3792 21.3417 12.5175 18.8828C12.6558 16.424 13.5197 14.0612 15.0002 12.0932C16.4807 10.1251 18.5113 8.64001 20.8354 7.82547C23.1596 7.01093 25.673 6.90351 28.0581 7.51678L28.947 4.06649C25.47 3.16207 21.7898 3.45318 18.4982 4.89301C15.2066 6.33285 12.4948 8.83776 10.7989 12.005C9.10288 15.1723 8.52127 18.8178 9.14752 22.3555C9.77377 25.8933 11.5715 29.1176 14.2517 31.5102V53.4374L24.9392 46.3124L35.6267 53.4374V31.5423C37.9927 29.4339 39.6774 26.669 40.4663 23.5997ZM32.0642 46.7809L24.9392 42.0303L17.8142 46.7809V33.9327C20.0246 35.0438 22.464 35.6233 24.9379 35.6252C27.4119 35.627 29.8521 35.0511 32.0642 33.9434V46.7809Z" fill="black" />
+            </svg>
+            <div class="product-gallery_feature-text-wrapper">
+              <span class="feature-text__title">100% Qualität</span>
+              <span class="feature-text__detail">Dank weichem Silikon</span>
+            </div>
+          </div>
+          <div class="product-gallery_feature-item">
+            <svg
+              width="57"
+              height="57"
+              viewBox="0 0 57 57"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M40.9688 3.5625L43.8063 8.90625L49.875 9.64369L45.4219 13.6568L46.3125 19.5938L40.9688 16.2539L35.625 19.5938L36.5156 13.6568L32.0625 9.64369L38.2969 8.90625L40.9688 3.5625Z" fill="black" />
+              <path d="M40.4663 23.5997L37.0143 22.7126C36.3955 25.0964 35.0841 27.2432 33.2457 28.882C31.4073 30.5207 29.1245 31.5779 26.6856 31.9198C24.2467 32.2617 21.7612 31.8731 19.5431 30.8031C17.3249 29.7331 15.4737 28.0297 14.2232 25.908C12.9727 23.7863 12.3792 21.3417 12.5175 18.8828C12.6558 16.424 13.5197 14.0612 15.0002 12.0932C16.4807 10.1251 18.5113 8.64001 20.8354 7.82547C23.1596 7.01093 25.673 6.90351 28.0581 7.51678L28.947 4.06649C25.47 3.16207 21.7898 3.45318 18.4982 4.89301C15.2066 6.33285 12.4948 8.83776 10.7989 12.005C9.10288 15.1723 8.52127 18.8178 9.14752 22.3555C9.77377 25.8933 11.5715 29.1176 14.2517 31.5102V53.4374L24.9392 46.3124L35.6267 53.4374V31.5423C37.9927 29.4339 39.6774 26.669 40.4663 23.5997ZM32.0642 46.7809L24.9392 42.0303L17.8142 46.7809V33.9327C20.0246 35.0438 22.464 35.6233 24.9379 35.6252C27.4119 35.627 29.8521 35.0511 32.0642 33.9434V46.7809Z" fill="black" />
+            </svg>
+            <div class="product-gallery_feature-text-wrapper">
+              <span class="feature-text__title">100% Qualität</span>
+              <span class="feature-text__detail">Dank weichem Silikon</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+   </div>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js" defer="defer"></script>
+<script src="{{ 'gallery.js' | asset_url }}" defer></script>
+
+
+
+
+{% schema %}
+{
+  "name": "Produkt Galerie",
+  "tag": "section",
+  "class": "product-gallery-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Allgemeine Einstellungen"
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Innenabstand oben & unten",
+      "default": 48
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Hintergrundfarbe",
+      "default": "#FFFFFF"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature_item",
+      "name": "Feature Icon",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "html",
+          "id": "icon_svg",
+          "label": "Icon SVG Code",
+          "info": "Füge hier den kompletten SVG Code für das Icon ein."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Titel",
+          "default": "100% Qualität"
+        },
+        {
+          "type": "text",
+          "id": "detail",
+          "label": "Detailtext",
+          "default": "Dank weichem Silikon"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Produkt Galerie",
+      "blocks": [
+        {
+          "type": "feature_item"
+        },
+        {
+          "type": "feature_item"
+        },
+        {
+          "type": "feature_item"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
