@@ -1,17 +1,16 @@
 {% comment %}
   product-gallery.liquid
-  Final version with the 'full-width' class to resolve theme grid conflicts.
+  Final version with a fix for sluggish and skipping swipe behavior.
 {% endcomment %}
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" async></script>
-
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
 
 <main class="main-product-gallery full-width" role="main">
   <section class="product-gallery-section">
     <div class="padding-vertical__global">
       <div class="product-gallery">
-        <div class="product-gallery__thumbnails">
+        <aside class="product-gallery__thumbnails">
           {%- for image in product.images -%}
             <img
               src="{{ image | image_url: width: 240 }}"
@@ -22,7 +21,7 @@
               height="100"
               loading="lazy">
           {%- endfor -%}
-        </div>
+        </aside>
 
         <div class="product-gallery_main-image">
           <div class="product-gallery_slider-container">
@@ -79,7 +78,7 @@
             {%- else -%}
                <div class="price-card__availability-status out-of-stock">
                 <div class="price-card__availability-status-dot"></div>
-                <span class="price-card__availability-text">Ausverkauft</span>
+                <span class="price-card__availability-text is-grey">Ausverkauft</span>
               </div>
             {%- endif -%}
             {%- form 'product', product -%}
@@ -152,12 +151,12 @@
               {%- if product.available -%}
                 <div class="price-card__availability-status">
                   <div class="price-card__availability-status-dot"></div>
-                  <span class="price-card__availability-text">Auf Lager</span>
+                  <span class="price-card__availability-text">Auf Lager, in 2-3 Tagen bei dir</span>
                 </div>
               {%- else -%}
                 <div class="price-card__availability-status out-of-stock">
                   <div class="price-card__availability-status-dot"></div>
-                  <span class="price-card__availability-text">Ausverkauft</span>
+                  <span class="price-card__availability-text is-grey">Ausverkauft</span>
                 </div>
               {%- endif -%}
               {%- form 'product', product -%}
@@ -219,8 +218,8 @@
   --spacing-50pt: 3.125rem;
   --spacing-12pt: 0.75rem;
   --spacing-18pt: 1.125rem;
-  --spacing-37pt: 2.3125rem;
-  --spacing-10pt: 0.625rem;  
+  --spacing-37pt: 2.3125rem;  
+  --spacing-10pt: 0.625rem; 
   /*Border-radius*/
   --border-radius-5pt: 0.3125rem;
   --border-radius-3pt: 0.1875rem;
@@ -383,6 +382,14 @@
   font-size: var(--fontsize-15pt);
   font-weight: 500;
 }
+
+.price-card__availability-text.is-grey {
+  font-size: var(--fontsize-15pt);
+  font-weight: 500;
+  color: var(--greyactive)
+}
+
+
 .product-card_cta-btn {
   display: flex;
   align-items: center;
@@ -441,18 +448,18 @@
   .product_slider-mobile{
     display:block;
   }
-  .main-product-gallery {
+  .main-product-gallery.full-width {
     padding: 0;
   }
   .product-gallery-section{
-    padding: 4rem 0 0 0;  
-    margin: unset;
+    padding: 0;
   }
-  .product_slider-mobile .container {
-    max-width: 100%;
-    padding-left: 0;
-    padding-right: 0;
+  
+  .padding-vertical__global {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
   }
+  
   .swiper-slide {
     height: 21.875rem !important; 
     border-radius: var(--border-radius-5pt);
@@ -477,6 +484,12 @@
     background-color: var(--greyactive) !important;
     box-shadow: var(--box-shadow-inset) !important;
   }
+  .swiper-wrapper {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+  }
   .product-gallery_product-card-wrapper.is-mobile{
     display:flex!important;
     padding: 0 var(--spacing-20pt);
@@ -485,6 +498,7 @@
   .product-gallery_product-card-wrapper.is-mobile .product-gallery_product-card{
     margin-left: 0rem;
   }
+  
   .product-gallery_feature-wrapper.is-mobile{
     display:flex;
     flex-direction:row;
@@ -492,7 +506,7 @@
     justify-content: center;  
     gap: 1.8125rem;
     margin-top: 3rem;
-    padding: 0 var(--spacing-20pt) 4rem var(--spacing-20pt);
+    padding: 0 var(--spacing-20pt); 
     flex-wrap: wrap;
   }
 }
@@ -556,11 +570,11 @@ function initProductGallery() {
         disableOnInteraction: false,
       },
       centeredSlides: true,
-      centeredSlidesBounds: true,
-      loopAddBlankSlides: false,
       slidesPerView: 1,
-      grabCursor: true,
-      loop: galleryImages.length > 1,
+      grabCursor: !('ontouchstart' in window || navigator.maxTouchPoints > 0),
+      
+      rewind: galleryImages.length > 1,
+      
       pagination: {
         el: sectionElement.querySelector(".swiper-pagination"),
         clickable: true
@@ -568,7 +582,7 @@ function initProductGallery() {
       breakpoints: {
         320: {
           slidesPerView: 1.13,
-          spaceBetween: 15
+          spaceBetween: 7
         }
       }
     });
