@@ -11,8 +11,44 @@
   "sections": {
     "main": {
       "type": "product-gallery",
-      "settings": {}
+      "blocks": {
+        "feature_tenqCK": {
+          "type": "feature",
+          "settings": {
+            "icon": "shopify://shop_images/carbon_badge.svg",
+            "title": "100% Qualität",
+            "text": "Dank weichem Silikon"
+          }
+        },
+        "feature_py3N7Q": {
+          "type": "feature",
+          "settings": {
+            "icon": "shopify://shop_images/carbon_badge.svg",
+            "title": "100% Qualität",
+            "text": "Dank weichem Silikon"
+          }
+        },
+        "feature_giCzG6": {
+          "type": "feature",
+          "settings": {
+            "icon": "shopify://shop_images/carbon_badge.svg",
+            "title": "100% Qualität",
+            "text": "Dank weichem Silikon"
+          }
+        }
+      },
+      "block_order": [
+        "feature_tenqCK",
+        "feature_py3N7Q",
+        "feature_giCzG6"
+      ],
+      "settings": {
+        "custom_title": "",
+        "custom_vendor": ""
+      }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }
